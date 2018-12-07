@@ -1,5 +1,5 @@
 //
-//  CardsSlideView.swift
+//  CardsSliderView.swift
 //  memory-card
 //
 //  Created by 陈国民 on 2018/12/7.
@@ -11,16 +11,16 @@ import pop
 
 fileprivate let sizePercent: CGFloat = 0.1
 
-@objc protocol CardsSlideDelegate {
-    @objc optional func cardsSlideView(_ view: CardsSlideView, createFor: Int) -> UIView
-    @objc optional func cardsSlideView(_ view: CardsSlideView, willMove: UIView)
-    @objc optional func cardsSlideView(_ view: CardsSlideView, moving: UIView)
-    @objc optional func cardsSlideView(_ view: CardsSlideView, cancelMove: UIView)
-    @objc optional func cardsSlideView(_ view: CardsSlideView, hasMoved: UIView)
+@objc protocol CardsSliderDelegate {
+    @objc optional func cardsSliderView(_ view: CardsSliderView, createFor: Int) -> CardView
+    @objc optional func cardsSliderView(_ view: CardsSliderView, willMove: CardView)
+    @objc optional func cardsSliderView(_ view: CardsSliderView, moving: CardView)
+    @objc optional func cardsSliderView(_ view: CardsSliderView, cancelMove: CardView)
+    @objc optional func cardsSliderView(_ view: CardsSliderView, hasMoved: CardView)
 }
 
 @IBDesignable
-class CardsSlideView: UIView {
+class CardsSliderView: UIView {
     
     enum CardType {
         case number0_9
@@ -33,14 +33,16 @@ class CardsSlideView: UIView {
         case random
     }
     
-    weak var delegate: CardsSlideDelegate?
+    weak var delegate: CardsSliderDelegate?
     
     var cardType: CardType = .number0_9
     var cardOrder: CardOrder = .random
+    var showCardNum = 4
     
     var currentIndex: Int = 0
-    var initialLocation: CGFloat = 0
-    var cardViews = [UIView]()
+    
+    private var initialLocation: CGFloat = 0
+    private var cardViews = [CardView]()
     
     private var moving: Bool = false
     
@@ -63,6 +65,7 @@ class CardsSlideView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
+        // Forbid relayout when moving card
         if !moving {
             relayoutCards()
         }
@@ -79,7 +82,27 @@ class CardsSlideView: UIView {
         self.addGestureRecognizer(recognizer)
     }
     
-    func showCardZone() {
+    // MARK: - comment
+    private var registeredClass: CardView.Type?
+    private var cachedInstances = [CardView]()
+    
+    func register(cls: CardView.Type) {
+        registeredClass = cls
+    }
+    
+    func dequene() -> CardView {
+        if cachedInstances.isEmpty {
+            return registeredClass!.init()
+        }
+        
+        let instance = cachedInstances.first!
+        cachedInstances.removeFirst()
+        return instance
+    }
+    
+    // MARK: - Card Views Animations
+    
+    private func showCardZone() {
         var last: UIView?
         for i in 0..<4 {
             let cardView = createCardView()
@@ -167,7 +190,7 @@ class CardsSlideView: UIView {
         }
     }
     
-    func setCenter(_ center: CGPoint, duration: CGFloat, cardView: UIView, index: Int) {
+    private func setCenter(_ center: CGPoint, duration: CGFloat, cardView: UIView, index: Int) {
         let ani = POPBasicAnimation(propertyNamed: kPOPViewCenter)
         ani?.toValue = NSValue(cgPoint: center)
         ani?.duration = TimeInterval(duration)
@@ -179,14 +202,14 @@ class CardsSlideView: UIView {
         cardView.pop_add(ani, forKey: "center")
     }
     
-    func setScale(withScalePercent percent: CGFloat, duration: TimeInterval, cardView: UIView) {
+    private func setScale(withScalePercent percent: CGFloat, duration: TimeInterval, cardView: UIView) {
         let ani = POPBasicAnimation(propertyNamed: kPOPLayerScaleXY)
         ani?.toValue = NSValue(cgSize: CGSize(width: percent, height: percent))
         ani?.duration = duration
         cardView.layer.pop_add(ani, forKey: "scale")
     }
     
-    func setRotation(withAngle angle: CGFloat, duration: TimeInterval, cardView: UIView) {
+    private func setRotation(withAngle angle: CGFloat, duration: TimeInterval, cardView: UIView) {
         let ani = POPBasicAnimation(propertyNamed: kPOPLayerRotation)
         ani?.toValue =  NSNumber(value: Float(angle))
         ani?.duration = duration
@@ -194,14 +217,14 @@ class CardsSlideView: UIView {
         cardView.layer.pop_add(ani, forKey: "rotation")
     }
     
-    func setAlpha(withAlpah alpha: CGFloat, duration: TimeInterval, cardView: UIView) {
+    private func setAlpha(withAlpah alpha: CGFloat, duration: TimeInterval, cardView: UIView) {
         let ani = POPBasicAnimation(propertyNamed: kPOPViewAlpha)
         ani?.toValue = NSNumber(value: Float(alpha))
         ani?.duration = duration
         cardView.pop_add(ani, forKey: "alpha")
     }
     
-    func cardReCenterOrDismiss(isDismiss: Bool, cardView: UIView) {
+    private func cardReCenterOrDismiss(isDismiss: Bool, cardView: UIView) {
         // 没有想到其他办法，这个时候禁用掉界面，避免用户快速拖动时界面混乱，出现卡片越来越多的问题。
         // TODO(cgm)：优化，如果这时能够不禁用操作，还能交互，用户就能够更快的切换卡片，操作更顺畅。
         isUserInteractionEnabled = false
@@ -260,9 +283,9 @@ class CardsSlideView: UIView {
     }
     
     
-    private func createCardView() -> UIView {
+    private func createCardView() -> CardView {
         //return Bundle.main.loadNibNamed("NumberCardView", owner: self, options: nil)?.first as! UIView
-        if let view = delegate?.cardsSlideView?(self, createFor: 0) {
+        if let view = delegate?.cardsSliderView?(self, createFor: 0) {
             return view
         }
         

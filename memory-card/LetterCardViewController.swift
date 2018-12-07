@@ -10,7 +10,7 @@ import UIKit
 
 class LetterCardViewController: UIViewController {
 
-    @IBOutlet weak var cardSlider: CardsSlideView!
+    @IBOutlet weak var cardSlider: CardsSliderView!
     
     override func viewDidLoad() {
         super.viewDidLoad()

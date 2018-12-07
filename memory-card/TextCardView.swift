@@ -9,24 +9,6 @@
 import UIKit
 
 @IBDesignable
-class TextCardView: UIView {
-    
+class TextCardView: CardView {
     @IBOutlet weak var numLabel: UILabel?
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        setupUI()
-    }
-    
-    override func prepareForInterfaceBuilder() {
-        super.prepareForInterfaceBuilder()
-        setupUI()
-    }
-    
-    private func setupUI() {
-        self.layer.cornerRadius = 20
-        self.layer.borderColor = UIColor.lightGray.cgColor
-        self.layer.borderWidth = 0.5
-    }
-
 }

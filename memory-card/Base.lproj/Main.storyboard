@@ -83,7 +83,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zft-aM-5OH" customClass="CardsSlideView" customModule="memory_card" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zft-aM-5OH" customClass="CardsSliderView" customModule="memory_card" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="64" width="375" height="603"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
@@ -124,7 +124,7 @@
         <scene sceneID="s2E-Z3-ncS">
             <objects>
                 <viewController title="数字" id="WPb-la-NRB" customClass="NumberViewController" customModule="memory_card" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="WnD-RF-RyD" customClass="CardsSlideView" customModule="memory_card" customModuleProvider="target">
+                    <view key="view" contentMode="scaleToFill" id="WnD-RF-RyD" customClass="CardsSliderView" customModule="memory_card" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
