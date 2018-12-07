@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="CardView" customModule="memory_card" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="225" height="399"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BOf-0G-DV8">
+                    <rect key="frame" x="22.5" y="339" width="180" height="40"/>
+                    <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="40" id="KUY-aY-h9p"/>
+                    </constraints>
+                    <state key="normal" title="Button">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
+                    <connections>
+                        <action selector="tapClicked:" destination="iN0-l3-epB" eventType="touchUpInside" id="nol-mD-CkS"/>
+                    </connections>
+                </button>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pdV-y1-5ps">
+                    <rect key="frame" x="0.0" y="0.0" width="225" height="399"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <gestureRecognizers/>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <gestureRecognizers/>
+            <constraints>
+                <constraint firstItem="pdV-y1-5ps" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="7zp-Rt-Oeq"/>
+                <constraint firstItem="pdV-y1-5ps" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="RB2-CO-EX3"/>
+                <constraint firstItem="BOf-0G-DV8" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" multiplier="0.8:1" id="bN9-GN-CY1"/>
+                <constraint firstAttribute="trailing" secondItem="pdV-y1-5ps" secondAttribute="trailing" id="lwQ-Pg-1zP"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="BOf-0G-DV8" secondAttribute="bottom" constant="20" id="lyE-12-CXH"/>
+                <constraint firstItem="BOf-0G-DV8" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="ny6-pg-gQq"/>
+                <constraint firstItem="pdV-y1-5ps" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="ooL-gU-s4J"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <userDefinedRuntimeAttributes>
+                <userDefinedRuntimeAttribute type="color" keyPath="bgColor">
+                    <color key="value" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="color" keyPath="tapColor1">
+                    <color key="value" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="color" keyPath="tapColor2">
+                    <color key="value" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </userDefinedRuntimeAttribute>
+            </userDefinedRuntimeAttributes>
+            <connections>
+                <outlet property="tapButton" destination="BOf-0G-DV8" id="iH6-Bh-pwy"/>
+                <outletCollection property="gestureRecognizers" destination="71N-u8-ico" appends="YES" id="EOd-Tw-uy4"/>
+                <outletCollection property="gestureRecognizers" destination="CUE-Q5-KYP" appends="YES" id="aPT-2K-lAE"/>
+            </connections>
+            <point key="canvasLocation" x="7.2000000000000002" y="54.422788605697157"/>
+        </view>
+        <swipeGestureRecognizer direction="left" id="71N-u8-ico"/>
+        <swipeGestureRecognizer direction="right" id="CUE-Q5-KYP"/>
+    </objects>
+</document>
