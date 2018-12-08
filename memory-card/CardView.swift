@@ -10,6 +10,10 @@ import UIKit
 
 @IBDesignable
 class CardView: UIView {
+    
+    @IBInspectable var cornerRadius: CGFloat = 20 { didSet { setupUI() }}
+    @IBInspectable var borderColor: UIColor = UIColor.lightGray { didSet { setupUI() }}
+    @IBInspectable var borderWidth: CGFloat = 0.5 { didSet { setupUI() }}
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -22,9 +26,10 @@ class CardView: UIView {
     }
     
     private func setupUI() {
-        self.layer.cornerRadius = 20
-        self.layer.borderColor = UIColor.lightGray.cgColor
-        self.layer.borderWidth = 0.5
+        self.layer.masksToBounds = true
+        self.layer.cornerRadius = cornerRadius
+        self.layer.borderColor = borderColor.cgColor
+        self.layer.borderWidth = borderWidth
     }
 
 }

@@ -15,6 +15,8 @@
 		764810C021BA9EAD005D14D5 /* NumberViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764810BF21BA9EAD005D14D5 /* NumberViewController.swift */; };
 		764810C221BAC53E005D14D5 /* LetterCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764810C121BAC53E005D14D5 /* LetterCardViewController.swift */; };
 		764810C621BAD622005D14D5 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764810C521BAD622005D14D5 /* CardView.swift */; };
+		76D1468A21BBC2000048BA87 /* ImageCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76D1468921BBC2000048BA87 /* ImageCardView.swift */; };
+		76D1468C21BBC2140048BA87 /* ImageCardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 76D1468B21BBC2140048BA87 /* ImageCardView.xib */; };
 		76EDBE8C21B385030044991F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76EDBE8B21B385030044991F /* AppDelegate.swift */; };
 		76EDBE8E21B385030044991F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76EDBE8D21B385030044991F /* ViewController.swift */; };
 		76EDBE9121B385030044991F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 76EDBE8F21B385030044991F /* Main.storyboard */; };
@@ -61,6 +63,8 @@
 		764810BF21BA9EAD005D14D5 /* NumberViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberViewController.swift; sourceTree = "<group>"; };
 		764810C121BAC53E005D14D5 /* LetterCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterCardViewController.swift; sourceTree = "<group>"; };
 		764810C521BAD622005D14D5 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
+		76D1468921BBC2000048BA87 /* ImageCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCardView.swift; sourceTree = "<group>"; };
+		76D1468B21BBC2140048BA87 /* ImageCardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ImageCardView.xib; sourceTree = "<group>"; };
 		76EDBE8821B385030044991F /* memory-card.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "memory-card.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		76EDBE8B21B385030044991F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		76EDBE8D21B385030044991F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -109,6 +113,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		76D1468821BBC1750048BA87 /* Example */ = {
+			isa = PBXGroup;
+			children = (
+				76EDBEBD21B389260044991F /* CircleView.swift */,
+				76EDBEB921B387800044991F /* ExampleCardView.swift */,
+				76EDBEBB21B3879A0044991F /* ExampleCardView.xib */,
+				76EDBE8D21B385030044991F /* ViewController.swift */,
+			);
+			path = Example;
+			sourceTree = "<group>";
+		};
 		76EDBE7F21B385030044991F = {
 			isa = PBXGroup;
 			children = (
@@ -134,15 +149,12 @@
 		76EDBE8A21B385030044991F /* memory-card */ = {
 			isa = PBXGroup;
 			children = (
+				76D1468821BBC1750048BA87 /* Example */,
 				76EDBE8B21B385030044991F /* AppDelegate.swift */,
-				76EDBE8D21B385030044991F /* ViewController.swift */,
 				76EDBE8F21B385030044991F /* Main.storyboard */,
 				76EDBE9221B385060044991F /* Assets.xcassets */,
 				76EDBE9421B385060044991F /* LaunchScreen.storyboard */,
 				76EDBE9721B385060044991F /* Info.plist */,
-				76EDBEB921B387800044991F /* ExampleCardView.swift */,
-				76EDBEBB21B3879A0044991F /* ExampleCardView.xib */,
-				76EDBEBD21B389260044991F /* CircleView.swift */,
 				764810B721BA8E36005D14D5 /* TextCardView.swift */,
 				764810B921BA8E4C005D14D5 /* TextCardView.xib */,
 				764810BB21BA94D1005D14D5 /* MainViewController.swift */,
@@ -150,6 +162,8 @@
 				764810BF21BA9EAD005D14D5 /* NumberViewController.swift */,
 				764810C121BAC53E005D14D5 /* LetterCardViewController.swift */,
 				764810C521BAD622005D14D5 /* CardView.swift */,
+				76D1468921BBC2000048BA87 /* ImageCardView.swift */,
+				76D1468B21BBC2140048BA87 /* ImageCardView.xib */,
 			);
 			path = "memory-card";
 			sourceTree = "<group>";
@@ -305,6 +319,7 @@
 			files = (
 				76EDBE9621B385060044991F /* LaunchScreen.storyboard in Resources */,
 				76EDBE9321B385060044991F /* Assets.xcassets in Resources */,
+				76D1468C21BBC2140048BA87 /* ImageCardView.xib in Resources */,
 				76EDBEBC21B3879A0044991F /* ExampleCardView.xib in Resources */,
 				76EDBE9121B385030044991F /* Main.storyboard in Resources */,
 				764810BA21BA8E4C005D14D5 /* TextCardView.xib in Resources */,
@@ -417,6 +432,7 @@
 				764810C021BA9EAD005D14D5 /* NumberViewController.swift in Sources */,
 				764810BE21BA9B8A005D14D5 /* CardsSliderView.swift in Sources */,
 				764810B821BA8E36005D14D5 /* TextCardView.swift in Sources */,
+				76D1468A21BBC2000048BA87 /* ImageCardView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -101,10 +101,10 @@ class ViewController: UIViewController {
         }
     }
     
-    func setCenter(_ center: CGPoint, duration: CGFloat, cardView: UIView, index: Int) {
+    func setCenter(_ center: CGPoint, duration: TimeInterval, cardView: UIView, index: Int) {
         let ani = POPBasicAnimation(propertyNamed: kPOPViewCenter)
         ani?.toValue = NSValue(cgPoint: center)
-        ani?.duration = TimeInterval(duration)
+        ani?.duration = duration
         ani?.completionBlock = { ani, isFinish in
             if isFinish {
                 cardView.isHidden = false

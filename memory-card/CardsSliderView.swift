@@ -11,32 +11,40 @@ import pop
 
 fileprivate let sizePercent: CGFloat = 0.1
 
+@objc protocol CardsSliderDataSource {
+    @objc optional func numberOfCards(_ cardsSlider: CardsSliderView) -> Int
+    @objc optional func cardsSliderViewSize(_ cardsSlider: CardsSliderView) -> CGSize
+    @objc optional func cardsSliderView(_ cardsSlider: CardsSliderView, createForIndex index: Int) -> CardView
+}
+
 @objc protocol CardsSliderDelegate {
-    @objc optional func cardsSliderView(_ view: CardsSliderView, createFor: Int) -> CardView
-    @objc optional func cardsSliderView(_ view: CardsSliderView, willMove: CardView)
-    @objc optional func cardsSliderView(_ view: CardsSliderView, moving: CardView)
-    @objc optional func cardsSliderView(_ view: CardsSliderView, cancelMove: CardView)
-    @objc optional func cardsSliderView(_ view: CardsSliderView, hasMoved: CardView)
+
+    @objc optional func cardsSliderView(_ cardsSlider: CardsSliderView, willMove: CardView)
+    @objc optional func cardsSliderView(_ cardsSlider: CardsSliderView, moving: CardView)
+    @objc optional func cardsSliderView(_ cardsSlider: CardsSliderView, cancelMove: CardView)
+    @objc optional func cardsSliderView(_ cardsSlider: CardsSliderView, hasMoved: CardView)
 }
 
 @IBDesignable
 class CardsSliderView: UIView {
     
-    enum CardType {
+    @objc enum CardType : Int {
         case number0_9
         case number0_99
         case letter
+        case custom
     }
     
-    enum CardOrder {
+    @objc enum CardOrder : Int {
         case normal
         case random
     }
     
+    weak var dataSource: CardsSliderDataSource?
     weak var delegate: CardsSliderDelegate?
     
-    var cardType: CardType = .number0_9
-    var cardOrder: CardOrder = .random
+    @IBInspectable var cardType: CardType = .number0_9
+    @IBInspectable var cardOrder: CardOrder = .random
     var showCardNum = 4
     
     var currentIndex: Int = 0
@@ -62,17 +70,24 @@ class CardsSliderView: UIView {
         setupUI()
     }
     
+    override func prepareForInterfaceBuilder() {
+        super.prepareForInterfaceBuilder()
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         
         // Forbid relayout when moving card
         if !moving {
-            relayoutCards()
+            for (i, card) in self.cardViews.enumerated() {
+                let ani = POPBasicAnimation(propertyNamed: kPOPViewSize)
+                ani?.toValue = NSValue(cgSize: sizeOfCard())
+                ani?.duration = 0.25
+                card.pop_add(ani, forKey: "size")
+                self.setCenter(calcCardCenter(indexOfShow: i), duration: 0.25, cardView: card, index: i)
+            }
+            //relayoutCards()
         }
-    }
-    
-    override func setNeedsLayout() {
-        super.setNeedsLayout()
     }
     
     private func setupUI() {
@@ -84,61 +99,107 @@ class CardsSliderView: UIView {
     
     // MARK: - comment
     private var registeredClass: CardView.Type?
+    private var registeredNib: UINib?
     private var cachedInstances = [CardView]()
+    private var maxCachedInstance = 2
     
     func register(cls: CardView.Type) {
+        cachedInstances.removeAll()
         registeredClass = cls
+        registeredNib = nil
+    }
+    
+    func register(nib: UINib) {
+        cachedInstances.removeAll()
+        registeredNib = nib
+        registeredClass = nil
     }
     
     func dequene() -> CardView {
         if cachedInstances.isEmpty {
-            return registeredClass!.init()
+            if registeredClass != nil {
+                return registeredClass!.init()
+            } else if registeredNib != nil {
+                return registeredNib?.instantiate(withOwner: self, options: nil).first as! CardView
+            } else {
+                fatalError("Do not have registered class or nib")
+            }
         }
         
         let instance = cachedInstances.first!
         cachedInstances.removeFirst()
+        
+        // reset transform,
+        // 避免再使用的时候，view.bounds大小于frame大小不一致。
+        instance.transform = CGAffineTransform(scaleX: 1, y: 1).translatedBy(x: 0, y: 0)
         return instance
+    }
+    
+    func cacheInstance(cardView: CardView) {
+        if cachedInstances.count > maxCachedInstance {
+            return
+        }
+        
+        cachedInstances.append(cardView)
+    }
+    
+    func reloadData() {
+        for view in cardViews {
+            view.removeFromSuperview()
+        }
+        cardViews.removeAll()
+        showCardZone()
     }
     
     // MARK: - Card Views Animations
     
     private func showCardZone() {
-        var last: UIView?
-        for i in 0..<4 {
-            let cardView = createCardView()
-            
-            cardView.frame = CGRect(x: 0, y: 0, width: 300, height: 400)
-            self.setScale(withScalePercent: 1 - sizePercent * CGFloat(i), duration: 0.0001, cardView: cardView)
-            let targetCenter = calcCardCenter(index: i)
-            self.setCenter(targetCenter, duration: 0.1, cardView: cardView, index: i)
-            cardView.center = CGPoint(x: self.bounds.width / 2, y: self.bounds.height / 2 - 10 * CGFloat(i) + 50)
-            if let last = last {
-                self.insertSubview(cardView, belowSubview: last)
-            } else {
-                self.addSubview(cardView)
-            }
-            self.cardViews.append(cardView)
-            self.currentIndex = i
-            last = cardView
+        let totalCardNum: Int
+        if cardType != .custom {
+            totalCardNum = showCardNum
+        } else {
+            totalCardNum = dataSource?.numberOfCards?(self) ?? 0
+        }
+        
+        for _ in 0..<min(showCardNum, totalCardNum) {
+            createCardView(appendAtEnd: true, duration: 0.01)
         }
     }
     
+    private func createCardView(appendAtEnd: Bool, duration: TimeInterval) {
+        let i = self.cardViews.count
+        let index = appendAtEnd ? (self.currentIndex + i) : self.currentIndex - 1
+        let cardView = createCardView(index: index)
+        cardView.frame = CGRect(origin: .zero, size: sizeOfCard())
+        cardView.isHidden = true
+        self.setScale(withScalePercent: calcScale(indexOfShow: i), duration: duration, cardView: cardView)
+        self.setCenter(calcCardCenter(indexOfShow: i), duration: duration, cardView: cardView, index: i)
+        if let last = cardViews.last {
+            self.insertSubview(cardView, belowSubview: last)
+        } else {
+            self.addSubview(cardView)
+        }
+        self.cardViews.append(cardView)
+    }
+    
+    private func sizeOfCard() -> CGSize {
+        if let size = dataSource?.cardsSliderViewSize?(self) {
+            return size
+        }
+        
+        let height = self.bounds.height - (sizePercent * CGFloat(showCardNum - 1) * 400)
+        return CGSize(width: self.bounds.width * 0.9, height: height * 0.9)
+    }
+    
     @objc private func handleGesture(recognizer: UIPanGestureRecognizer) {
+        guard cardViews.count != 0 else { return }
+        
         let location = recognizer.location(in: self)
         if recognizer.state == .began {
             self.moving = true
             self.initialLocation = location.x
-            let cardView = createCardView()
-            cardView.frame = CGRect(x: 0, y: 0, width: 300, height: 400)
-            cardView.isHidden = true
-            self.addSubview(cardView)
-            
-            if let last = cardViews.last {
-                self.insertSubview(cardView, belowSubview: last)
-            }
-            self.setScale(withScalePercent: calcScale(index: self.cardViews.count), duration: 0.25, cardView: cardView)
-            self.setCenter(calcCardCenter(index: self.cardViews.count), duration: 0.25, cardView: cardView, index: 0)
-            self.cardViews.append(cardView)
+            createCardView(appendAtEnd: true, duration: 0.25)
+
             return
         }
         
@@ -148,7 +209,7 @@ class CardsSliderView: UIView {
         cardView.pop_removeAllAnimations()
         let transLocation = recognizer.translation(in: self)
         cardView.center = CGPoint(x: cardView.center.x + transLocation.x, y: cardView.center.y + transLocation.y)
-        let xOffPercent = (cardView.center.x - self.bounds.width / 2) / self.bounds.width / 2
+        let xOffPercent = (cardView.center.x - self.bounds.width / 2) / (self.bounds.width / 2)
         let scalePercent = 1 - abs(xOffPercent) * 0.3
         let rotation = CGFloat.pi / 4 * xOffPercent
         self.setScale(withScalePercent: scalePercent, duration: 0.0001, cardView: cardView)
@@ -165,9 +226,9 @@ class CardsSliderView: UIView {
                 percent = 1.0
             }
             
-            let scalePercent = calcScale(index: i) + sizePercent * abs(percent)
+            let scalePercent = calcScale(indexOfShow: i) + sizePercent * abs(percent)
             self.setScale(withScalePercent: scalePercent, duration: 0.0001, cardView: card)
-            var cardCenter = calcCardCenter(index: i)
+            var cardCenter = calcCardCenter(indexOfShow: i)
             cardCenter.y = cardCenter.y - sizePercent * 400 * abs(percent)
             self.setCenter(cardCenter, duration: 0.0001, cardView: card, index: i)
             if i == cardViews.count - 1 {
@@ -179,9 +240,10 @@ class CardsSliderView: UIView {
         if recognizer.state == .ended {
             moving = false
             if cardView.center.x > 120 && cardView.center.x < self.bounds.width - 120 {
-                if let firstCardView = self.cardViews.last {
-                    firstCardView.removeFromSuperview()
+                if let lastCardView = self.cardViews.last {
+                    lastCardView.removeFromSuperview()
                     self.cardViews.removeLast()
+                    self.cacheInstance(cardView: lastCardView)
                     self.cardReCenterOrDismiss(isDismiss: false, cardView: cardView)
                 }
             } else {
@@ -190,10 +252,10 @@ class CardsSliderView: UIView {
         }
     }
     
-    private func setCenter(_ center: CGPoint, duration: CGFloat, cardView: UIView, index: Int) {
+    private func setCenter(_ center: CGPoint, duration: TimeInterval, cardView: UIView, index: Int) {
         let ani = POPBasicAnimation(propertyNamed: kPOPViewCenter)
         ani?.toValue = NSValue(cgPoint: center)
-        ani?.duration = TimeInterval(duration)
+        ani?.duration = duration
         ani?.completionBlock = { ani, isFinish in
             if isFinish {
                 cardView.isHidden = false
@@ -238,32 +300,36 @@ class CardsSliderView: UIView {
                 // Slip out of screen in right side
                 self.setCenter(CGPoint(x: self.bounds.width + cardView.bounds.size.width / 2, y: cardView.center.y), duration: 0.25, cardView: cardView, index: 0)
             }
+            self.currentIndex += 1
+            self.cardViews.removeAll(where: {$0 == cardView})
             self.perform(#selector(removeCard(cardView:)), with: cardView, afterDelay: 0.25)
         } else {
             self.setScale(withScalePercent: 1, duration: 0.25, cardView: cardView)
             self.setRotation(withAngle: 0, duration: 0.25, cardView: cardView)
-            let targetCenter = calcCardCenter(index: 3)
-            self.setCenter(targetCenter, duration: 0.25, cardView: cardView, index: 3)
+            let targetCenter = calcCardCenter(indexOfShow: 0)
+            self.setCenter(targetCenter, duration: 0.25, cardView: cardView, index: 0)
             self.perform(#selector(removeCard(cardView:)), with: nil, afterDelay: 0.25)
-        }
-    }
-    
-    @objc func removeCard(cardView: UIView?) {
-        // Remove cardView after animate is finished.
-        if cardView != nil {
-            cardView!.removeFromSuperview()
-            self.cardViews.removeAll(where: {$0 == cardView})
         }
         
         // Re location the coard
         relayoutCards()
+    }
+    
+    @objc func removeCard(cardView: CardView?) {
+        // Remove cardView after animate is finished.
+        if cardView != nil {
+            cardView!.removeFromSuperview()
+            //self.cardViews.removeAll(where: {$0 == cardView})
+            cacheInstance(cardView: cardView!)
+        }
+
         isUserInteractionEnabled = true
     }
     
     private func relayoutCards() {
         for (i, card) in self.cardViews.enumerated() {
-            self.setScale(withScalePercent: calcScale(index: i), duration: 0.1, cardView: card)
-            self.setCenter(calcCardCenter(index: i), duration: 0.1, cardView: card, index: i)
+            self.setScale(withScalePercent: calcScale(indexOfShow: i), duration: 0.1, cardView: card)
+            self.setCenter(calcCardCenter(indexOfShow: i), duration: 0.1, cardView: card, index: i)
             if i == self.cardViews.count - 1 && card.alpha != 1 {
                 setAlpha(withAlpah: 1, duration: 0.1, cardView: card)
             } else {
@@ -272,21 +338,25 @@ class CardsSliderView: UIView {
         }
     }
     
-    private func calcScale(index: Int) -> CGFloat {
+    // MARK: - Calc for card
+    
+    private func calcScale(indexOfShow index: Int) -> CGFloat {
         return 1 - sizePercent * CGFloat(index)
     }
     
     // Calculate center pointer of ith card
-    private func calcCardCenter(index: Int) -> CGPoint {
+    private func calcCardCenter(indexOfShow index: Int) -> CGPoint {
         let viewCenterY = self.bounds.height / 2
-        return CGPoint(x: self.bounds.width / 2, y: viewCenterY + (sizePercent * CGFloat(index) * 400))
+        return CGPoint(x: self.bounds.width / 2, y: viewCenterY + (sizePercent * CGFloat(index) * sizeOfCard().height) * 0.9)
     }
     
-    
-    private func createCardView() -> CardView {
+    private func createCardView(index: Int) -> CardView {
         //return Bundle.main.loadNibNamed("NumberCardView", owner: self, options: nil)?.first as! UIView
-        if let view = delegate?.cardsSliderView?(self, createFor: 0) {
-            return view
+        if cardType == .custom {
+            if let view = dataSource?.cardsSliderView?(self, createForIndex: index) {
+                return view
+            }
+            fatalError()
         }
         
         let cardView = Bundle.main.loadNibNamed("TextCardView", owner: self, options: nil)?.first as! TextCardView
@@ -299,6 +369,8 @@ class CardsSliderView: UIView {
             let offset = Int(arc4random() % 26)
             let ch =  String(letters[letters.index(letters.startIndex, offsetBy: offset)])
             cardView.numLabel?.text = ch.uppercased() + ch
+        case .custom:
+            fatalError()
         }
         
         return cardView

@@ -8,12 +8,28 @@
 
 import UIKit
 
+
 class NumberViewController: UIViewController {
 
+    @IBOutlet weak var cardSlider: CardsSliderView!
+    
+    private var numberImages = [UIImage]()
+    private var numberSort = [Int]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        for i in 0...9 {
+            numberImages.append(UIImage(named: "\(i)")!)
+            numberSort.append(i)
+        }
+        
+        numberSort.shuffle()
+        
+        cardSlider.register(nib: UINib(nibName: "ImageCardView", bundle: Bundle(for: ImageCardView.self)))
+        cardSlider.cardType = .custom
+        cardSlider.dataSource = self
+        cardSlider.reloadData()
     }
     
 
@@ -27,4 +43,19 @@ class NumberViewController: UIViewController {
     }
     */
 
+}
+
+extension NumberViewController : CardsSliderDataSource {
+    func numberOfCards(_ cardsSlider: CardsSliderView) -> Int {
+        return 10
+    }
+    
+    func cardsSliderView(_ cardsSlider: CardsSliderView, createForIndex index: Int) -> CardView {
+        let cardView = cardsSlider.dequene() as! ImageCardView
+        
+        let num = numberSort[index % 10]
+        cardView.imageView.image = numberImages[num]
+        cardView.label.text = "\(num)"
+        return cardView
+    }
 }
